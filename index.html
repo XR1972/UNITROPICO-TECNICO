@@ -7,219 +7,39 @@
     <script src="https://cdn.jsdelivr.net/npm/babylonjs@5.54.0/babylon.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/babylonjs-loaders@5.54.0/babylonjs.loaders.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
-            background: #000;
-        }
-
-        #renderCanvas {
-            width: 100%;
-            height: 100vh;
-            display: block;
-        }
-
-        /* Panel desplegable */
-        #layerPanel {
-            position: fixed;
-            right: 20px;
-            top: 20px;
-            width: 280px;
-            max-height: 85vh;
-            background: rgba(30, 30, 30, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            overflow-y: auto;
-            z-index: 100;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-        }
-
-        #layerPanel::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        #layerPanel::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        #layerPanel::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-        }
-
-        #layerPanel::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .panel-title {
-            padding: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            font-weight: 600;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #fff;
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .floor-section {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .floor-header {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
-            cursor: pointer;
-            user-select: none;
-            background: rgba(255, 255, 255, 0.03);
-            transition: background 0.2s ease;
-        }
-
-        .floor-header:hover {
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .floor-toggle {
-            display: inline-block;
-            width: 16px;
-            margin-right: 10px;
-            text-align: center;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.6);
-            transition: transform 0.2s ease;
-        }
-
-        .floor-toggle.collapsed {
-            transform: rotate(-90deg);
-        }
-
-        .floor-name {
-            flex-grow: 1;
-            font-weight: 600;
-            font-size: 13px;
-            color: #fff;
-        }
-
-        .floor-items {
-            max-height: 500px;
-            overflow: hidden;
-            transition: max-height 0.3s ease, opacity 0.3s ease;
-            opacity: 1;
-        }
-
-        .floor-items.collapsed {
-            max-height: 0;
-            opacity: 0;
-        }
-
-        .element-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px 10px 35px;
-            cursor: pointer;
-            user-select: none;
-            transition: background 0.2s ease;
-            border-left: 3px solid transparent;
-        }
-
-        .element-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-left-color: rgba(100, 150, 255, 0.5);
-        }
-
-        .element-checkbox {
-            width: 16px;
-            height: 16px;
-            margin-right: 10px;
-            border: 1px solid rgba(100, 150, 255, 0.6);
-            border-radius: 3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            background: rgba(100, 150, 255, 0.1);
-        }
-
-        .element-checkbox.checked {
-            background: rgba(100, 150, 255, 0.8);
-            border-color: rgba(100, 150, 255, 1);
-        }
-
-        .element-checkbox.checked::after {
-            content: '✓';
-            font-size: 11px;
-            color: #fff;
-        }
-
-        .element-name {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.8);
-            flex-grow: 1;
-        }
-
-        /* Info HUD */
-        #infoHud {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(30, 30, 30, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 15px;
-            border-radius: 6px;
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.8);
-            font-family: 'Courier New', monospace;
-            max-width: 250px;
-            z-index: 99;
-        }
-
-        .hud-row {
-            margin-bottom: 5px;
-        }
-
-        .hud-label {
-            color: rgba(100, 150, 255, 0.9);
-            font-weight: 600;
-        }
-
-        /* Control hints */
-        #controlHints {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(30, 30, 30, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 12px 15px;
-            border-radius: 6px;
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.7);
-            max-width: 220px;
-            z-index: 99;
-        }
-
-        .hint-title {
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: rgba(100, 150, 255, 0.9);
-        }
-
-        .hint-row {
-            margin-bottom: 4px;
-            line-height: 1.4;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; background: #000; }
+        #renderCanvas { width: 100%; height: 100vh; display: block; }
+        #layerPanel { position: fixed; right: 20px; top: 20px; width: 280px; max-height: 85vh; background: rgba(30, 30, 30, 0.95); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; overflow-y: auto; z-index: 100; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); }
+        #layerPanel::-webkit-scrollbar { width: 6px; }
+        #layerPanel::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
+        #layerPanel::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 3px; }
+        #layerPanel::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+        .panel-title { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #fff; background: rgba(0, 0, 0, 0.3); }
+        .floor-section { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .floor-header { display: flex; align-items: center; padding: 12px 15px; cursor: pointer; user-select: none; background: rgba(255, 255, 255, 0.03); transition: background 0.2s ease; }
+        .floor-header:hover { background: rgba(255, 255, 255, 0.08); }
+        .floor-toggle { display: inline-block; width: 16px; margin-right: 10px; text-align: center; font-size: 12px; color: rgba(255, 255, 255, 0.6); transition: transform 0.2s ease; }
+        .floor-toggle.collapsed { transform: rotate(-90deg); }
+        .floor-name { flex-grow: 1; font-weight: 600; font-size: 13px; color: #fff; }
+        .floor-items { max-height: 500px; overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; opacity: 1; }
+        .floor-items.collapsed { max-height: 0; opacity: 0; }
+        .element-item { display: flex; align-items: center; padding: 10px 15px 10px 35px; cursor: pointer; user-select: none; transition: background 0.2s ease; border-left: 3px solid transparent; }
+        .element-item:hover { background: rgba(255, 255, 255, 0.05); border-left-color: rgba(100, 150, 255, 0.5); }
+        .element-checkbox { width: 16px; height: 16px; margin-right: 10px; border: 1px solid rgba(100, 150, 255, 0.6); border-radius: 3px; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; background: rgba(100, 150, 255, 0.1); }
+        .element-checkbox.checked { background: rgba(100, 150, 255, 0.8); border-color: rgba(100, 150, 255, 1); }
+        .element-checkbox.checked::after { content: '✓'; font-size: 11px; color: #fff; }
+        .element-name { font-size: 12px; color: rgba(255, 255, 255, 0.8); flex-grow: 1; }
+        #infoHud { position: fixed; bottom: 20px; left: 20px; background: rgba(30, 30, 30, 0.9); border: 1px solid rgba(255, 255, 255, 0.2); padding: 15px; border-radius: 6px; font-size: 12px; color: rgba(255, 255, 255, 0.8); font-family: 'Courier New', monospace; max-width: 250px; z-index: 99; }
+        .hud-row { margin-bottom: 5px; }
+        .hud-label { color: rgba(100, 150, 255, 0.9); font-weight: 600; }
+        #controlHints { position: fixed; top: 20px; left: 20px; background: rgba(30, 30, 30, 0.85); border: 1px solid rgba(255, 255, 255, 0.2); padding: 12px 15px; border-radius: 6px; font-size: 11px; color: rgba(255, 255, 255, 0.7); max-width: 220px; z-index: 99; }
+        .hint-title { font-weight: 600; margin-bottom: 8px; color: rgba(100, 150, 255, 0.9); }
+        .hint-row { margin-bottom: 4px; line-height: 1.4; }
     </style>
 </head>
 <body>
     <canvas id="renderCanvas"></canvas>
-
     <div id="controlHints">
         <div class="hint-title">CONTROLES</div>
         <div class="hint-row"><strong>Movimiento:</strong> WASD</div>
@@ -227,33 +47,24 @@
         <div class="hint-row"><strong>Espacio:</strong> Saltar / Subir escaleras</div>
         <div class="hint-row"><strong>WebXR:</strong> Botón en pantalla</div>
     </div>
-
     <div id="infoHud">
         <div class="hud-row"><span class="hud-label">Piso:</span> <span id="pisoDisplay">1</span></div>
         <div class="hud-row"><span class="hud-label">Posición:</span> <span id="posDisplay">0, 0, 0</span></div>
         <div class="hud-row"><span class="hud-label">FPS:</span> <span id="fpsDisplay">60</span></div>
     </div>
-
     <div id="layerPanel">
         <div class="panel-title">Elementos Estructurales</div>
         <div id="layerContent"></div>
     </div>
 
     <script>
-        // ==================== SCENE SETUP ====================
         const canvas = document.getElementById('renderCanvas');
-        const engine = new BABYLON.Engine(canvas, true, { 
-            antialias: true,
-            preserveDrawingBuffer: false,
-            stencil: true
-        });
-        
+        const engine = new BABYLON.Engine(canvas, true, { antialias: true, preserveDrawingBuffer: false, stencil: true });
         const scene = new BABYLON.Scene(engine);
         scene.useRightHandedSystem = true;
         scene.collisionsEnabled = true;
         scene.gravity = null;
         
-        // ==================== CAMERA SETUP ====================
         const posicionInicial = new BABYLON.Vector3(50, 2, -20);
         const camera = new BABYLON.UniversalCamera("cameraRecorrido", posicionInicial.clone(), scene);
         camera.checkCollisions = true;
@@ -264,7 +75,6 @@
         camera.speed = 0.15;
         camera.attachControl(canvas, true);
         
-        // ==================== LIGHTING ====================
         const lightAmbiente = new BABYLON.HemisphericLight("ambientLight", new BABYLON.Vector3(0, 1, 0), scene);
         lightAmbiente.intensity = 0.9;
         lightAmbiente.groundColor = new BABYLON.Color3(0.2, 0.2, 0.25);
@@ -273,24 +83,16 @@
         lightDir.intensity = 0.6;
         lightDir.range = 500;
         
-        // ==================== HEIGHT DETECTION ====================
         const alturaDelPiso = (x, yActual, z) => {
             const margenPorEncima = 0.35;
             const origen = new BABYLON.Vector3(x, yActual + margenPorEncima, z);
             const rayo = new BABYLON.Ray(origen, BABYLON.Vector3.Down(), 100);
             const hit = scene.pickWithRay(rayo, (mesh) => mesh.checkCollisions);
-            if (hit && hit.hit) {
-                return hit.pickedPoint.y;
-            }
+            if (hit && hit.hit) return hit.pickedPoint.y;
             return null;
         };
         
-        // ==================== KEYBOARD & MOVEMENT ====================
-        const teclas = {
-            w: false, a: false, s: false, d: false,
-            espacio: false, q: false, e: false
-        };
-        
+        const teclas = { w: false, a: false, s: false, d: false, espacio: false, q: false, e: false };
         window.addEventListener('keydown', (e) => {
             const key = e.key.toLowerCase();
             if (key === 'w') teclas.w = true;
@@ -301,7 +103,6 @@
             if (key === 'q') teclas.q = true;
             if (key === 'e') teclas.e = true;
         });
-        
         window.addEventListener('keyup', (e) => {
             const key = e.key.toLowerCase();
             if (key === 'w') teclas.w = false;
@@ -313,15 +114,12 @@
             if (key === 'e') teclas.e = false;
         });
         
-        // ==================== LAYER MANAGEMENT ====================
         const layerManager = {
             meshes: {},
             floors: {},
-            
             init: async (model) => {
                 model.getChildMeshes(true).forEach(mesh => {
                     mesh.checkCollisions = true;
-                    
                     let floor = 'OTROS';
                     if (mesh.parent) {
                         const parentName = mesh.parent.name || '';
@@ -332,42 +130,24 @@
                         else if (parentName.includes('PISO 5') || parentName.includes('5.')) floor = 'PISO 5';
                         else if (parentName.includes('CUBIERTA') || parentName.includes('6.')) floor = 'CUBIERTA';
                     }
-                    
-                    if (!layerManager.floors[floor]) {
-                        layerManager.floors[floor] = [];
-                    }
-                    layerManager.floors[floor].push({
-                        mesh: mesh,
-                        name: mesh.name.substring(0, 30),
-                        visible: true
-                    });
+                    if (!layerManager.floors[floor]) layerManager.floors[floor] = [];
+                    layerManager.floors[floor].push({ mesh: mesh, name: mesh.name.substring(0, 30), visible: true });
                 });
-                
                 layerManager.buildUI();
             },
-            
             buildUI: () => {
                 const content = document.getElementById('layerContent');
                 content.innerHTML = '';
-                
                 const floorOrder = ['PISO 1', 'PISO 2', 'PISO 3', 'PISO 4', 'PISO 5', 'CUBIERTA'];
-                
                 floorOrder.forEach((floorName, index) => {
                     if (!layerManager.floors[floorName]) return;
-                    
                     const section = document.createElement('div');
                     section.className = 'floor-section';
-                    
                     const header = document.createElement('div');
                     header.className = 'floor-header';
-                    header.innerHTML = `
-                        <div class="floor-toggle"></div>
-                        <div class="floor-name">${floorName}</div>
-                    `;
-                    
+                    header.innerHTML = `<div class="floor-toggle"></div><div class="floor-name">${floorName}</div>`;
                     const itemsContainer = document.createElement('div');
                     itemsContainer.className = 'floor-items';
-                    
                     if (index === 0) {
                         itemsContainer.classList.remove('collapsed');
                         header.querySelector('.floor-toggle').classList.remove('collapsed');
@@ -375,40 +155,28 @@
                         itemsContainer.classList.add('collapsed');
                         header.querySelector('.floor-toggle').classList.add('collapsed');
                     }
-                    
-                    layerManager.floors[floorName].forEach((elem, elemIndex) => {
+                    layerManager.floors[floorName].forEach((elem) => {
                         const item = document.createElement('div');
                         item.className = 'element-item';
-                        
                         const checkbox = document.createElement('div');
                         checkbox.className = 'element-checkbox checked';
-                        
                         const name = document.createElement('div');
                         name.className = 'element-name';
                         name.textContent = elem.name;
-                        
                         item.appendChild(checkbox);
                         item.appendChild(name);
-                        
                         item.addEventListener('click', () => {
                             elem.visible = !elem.visible;
                             elem.mesh.setEnabled(elem.visible);
-                            
-                            if (elem.visible) {
-                                checkbox.classList.add('checked');
-                            } else {
-                                checkbox.classList.remove('checked');
-                            }
+                            if (elem.visible) checkbox.classList.add('checked');
+                            else checkbox.classList.remove('checked');
                         });
-                        
                         itemsContainer.appendChild(item);
                     });
-                    
                     header.addEventListener('click', () => {
                         itemsContainer.classList.toggle('collapsed');
                         header.querySelector('.floor-toggle').classList.toggle('collapsed');
                     });
-                    
                     section.appendChild(header);
                     section.appendChild(itemsContainer);
                     content.appendChild(section);
@@ -416,36 +184,41 @@
             }
         };
         
-        // ==================== MODEL LOADING ====================
         let modelLoaded = false;
-        
         BABYLON.SceneLoader.ImportMesh(
             "",
             "https://raw.githubusercontent.com/XR1972/UNITROPICO-TECNICO/main/",
             "2. UNITROPICO ESTRUCTURA.glb",
             scene,
             async (meshes, particleSystems, skeletons, animationGroups) => {
-                console.log('Modelo cargado:', meshes.length, 'meshes');
-                
+                console.log('Modelo TECNICO cargado:', meshes.length, 'meshes');
                 const root = meshes[0];
                 root.checkCollisions = true;
                 
-                await layerManager.init(root);
+                const boundingInfo = root.getHierarchyBoundingVectors(true);
+                const center = boundingInfo.max.add(boundingInfo.min).scale(0.5);
+                const size = boundingInfo.max.subtract(boundingInfo.min);
+                const maxDim = Math.max(size.x, size.y, size.z);
                 
+                console.log('Centro:', center);
+                console.log('Tamaño modelo:', size);
+                console.log('Dimensión máxima:', maxDim);
+                
+                const distance = maxDim * 1.5;
+                camera.position = new BABYLON.Vector3(center.x + distance, center.y + (maxDim * 0.5), center.z + distance);
+                camera.setTarget(center);
+                camera.maxZ = maxDim * 10;
+                
+                await layerManager.init(root);
                 modelLoaded = true;
             },
             null,
-            (error) => {
-                console.error('Error cargando modelo:', error);
-            }
+            (error) => console.error('Error cargando modelo:', error)
         );
         
-        // ==================== VIGNETTE EFFECT ====================
-        const postProcess = new BABYLON.PostProcess("vignette", "vignette", 
-            ["vignetteBlur", "vignette"], null, 1, camera);
+        const postProcess = new BABYLON.PostProcess("vignette", "vignette", ["vignetteBlur", "vignette"], null, 1, camera);
         postProcess.samplingMode = BABYLON.Texture.BILINEAR_SAMPLINGMODE;
         
-        // ==================== FLOOR DETECTION ====================
         const getFloor = (y) => {
             const FLOOR_RANGES = {
                 'PISO 1': { min: 0, max: 3.2 },
@@ -455,26 +228,20 @@
                 'PISO 5': { min: 12.8, max: 16.0 },
                 'CUBIERTA': { min: 16.0, max: 20.0 }
             };
-            
             for (const [floor, range] of Object.entries(FLOOR_RANGES)) {
                 if (y >= range.min && y < range.max) return floor;
             }
             return 'DESCONOCIDO';
         };
         
-        // ==================== RENDER LOOP ====================
-        let elapsedTime = 0;
-        let lastClimbTime = 0;
-        let alturaUltimaActualizada = posicionInicial.y;
-        
+        let elapsedTime = 0, lastClimbTime = 0, alturaUltimaActualizada = posicionInicial.y;
         engine.runRenderLoop(() => {
             const deltaTime = engine.getDeltaTime() / 1000;
             elapsedTime += deltaTime;
             
             const floorName = getFloor(camera.position.y);
             document.getElementById('pisoDisplay').textContent = floorName;
-            document.getElementById('posDisplay').textContent = 
-                `${camera.position.x.toFixed(1)}, ${camera.position.y.toFixed(1)}, ${camera.position.z.toFixed(1)}`;
+            document.getElementById('posDisplay').textContent = `${camera.position.x.toFixed(1)}, ${camera.position.y.toFixed(1)}, ${camera.position.z.toFixed(1)}`;
             document.getElementById('fpsDisplay').textContent = engine.getFps().toFixed(0);
             
             const direction = new BABYLON.Vector3(0, 0, 0);
@@ -485,10 +252,7 @@
             
             if (direction.length() > 0) {
                 direction.normalize();
-                const movVector = BABYLON.Vector3.TransformCoordinates(
-                    direction,
-                    BABYLON.Matrix.RotationY(camera.rotation.y)
-                );
+                const movVector = BABYLON.Vector3.TransformCoordinates(direction, BABYLON.Matrix.RotationY(camera.rotation.y));
                 camera.position.addInPlace(movVector.scale(camera.speed));
             }
             
@@ -517,23 +281,10 @@
             scene.render();
         });
         
-        window.addEventListener('resize', () => {
-            engine.resize();
-        });
-        
-        // ==================== WEBXR SETUP ====================
+        window.addEventListener('resize', () => engine.resize());
         BABYLON.WebXRDefaultExperience.CreateAsync(scene, {
-            uiOptions: {
-                sessionMode: 'immersive-vr',
-                referenceSpaceType: 'local-floor'
-            }
-        }).then((xr) => {
-            if (xr) {
-                console.log('WebXR disponible');
-            }
-        }).catch((err) => {
-            console.log('WebXR no disponible');
-        });
+            uiOptions: { sessionMode: 'immersive-vr', referenceSpaceType: 'local-floor' }
+        }).then((xr) => { if (xr) console.log('WebXR disponible'); }).catch(() => { });
     </script>
 </body>
 </html>
