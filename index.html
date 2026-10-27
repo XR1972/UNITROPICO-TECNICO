@@ -242,40 +242,37 @@
     <script>
         // ==================== SCENE SETUP ====================
         const canvas = document.getElementById('renderCanvas');
-        const engine = new BABYLON.Engine(canvas, true, {
+        const engine = new BABYLON.Engine(canvas, true, { 
             antialias: true,
             preserveDrawingBuffer: false,
             stencil: true
         });
-
+        
         const scene = new BABYLON.Scene(engine);
         scene.useRightHandedSystem = true;
         scene.collisionsEnabled = true;
-        scene.gravity = null; // No gravity - manual height control
-
+        scene.gravity = null;
+        
         // ==================== CAMERA SETUP ====================
-        const posicionInicial = new BABYLON.Vector3(50, 2, -20); // Frente del edificio
+        const posicionInicial = new BABYLON.Vector3(50, 2, -20);
         const camera = new BABYLON.UniversalCamera("cameraRecorrido", posicionInicial.clone(), scene);
         camera.checkCollisions = true;
         camera.applyGravity = false;
-        camera.ellipsoid = new BABYLON.Vector3(0.5, 1.7, 0.5); // Body capsule size
+        camera.ellipsoid = new BABYLON.Vector3(0.5, 1.7, 0.5);
         camera.inertia = 0.8;
         camera.angularSensibility = 1000;
         camera.speed = 0.15;
         camera.attachControl(canvas, true);
-
+        
         // ==================== LIGHTING ====================
         const lightAmbiente = new BABYLON.HemisphericLight("ambientLight", new BABYLON.Vector3(0, 1, 0), scene);
         lightAmbiente.intensity = 0.9;
         lightAmbiente.groundColor = new BABYLON.Color3(0.2, 0.2, 0.25);
-
+        
         const lightDir = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-0.5, -1, 0.5), scene);
         lightDir.intensity = 0.6;
         lightDir.range = 500;
-        lightDir.shadowMinZ = 0.1;
-        lightDir.shadowMaxZ = 500;
-        lightDir.shadowOrthoScale = 1.5;
-
+        
         // ==================== HEIGHT DETECTION ====================
         const alturaDelPiso = (x, yActual, z) => {
             const margenPorEncima = 0.35;
@@ -287,13 +284,13 @@
             }
             return null;
         };
-
+        
         // ==================== KEYBOARD & MOVEMENT ====================
         const teclas = {
             w: false, a: false, s: false, d: false,
             espacio: false, q: false, e: false
         };
-
+        
         window.addEventListener('keydown', (e) => {
             const key = e.key.toLowerCase();
             if (key === 'w') teclas.w = true;
@@ -304,7 +301,7 @@
             if (key === 'q') teclas.q = true;
             if (key === 'e') teclas.e = true;
         });
-
+        
         window.addEventListener('keyup', (e) => {
             const key = e.key.toLowerCase();
             if (key === 'w') teclas.w = false;
@@ -315,18 +312,16 @@
             if (key === 'q') teclas.q = false;
             if (key === 'e') teclas.e = false;
         });
-
+        
         // ==================== LAYER MANAGEMENT ====================
         const layerManager = {
             meshes: {},
             floors: {},
-
+            
             init: async (model) => {
-                // Organize meshes by floor from collections
                 model.getChildMeshes(true).forEach(mesh => {
                     mesh.checkCollisions = true;
-
-                    // Extract floor from parent collection name
+                    
                     let floor = 'OTROS';
                     if (mesh.parent) {
                         const parentName = mesh.parent.name || '';
@@ -337,7 +332,7 @@
                         else if (parentName.includes('PISO 5') || parentName.includes('5.')) floor = 'PISO 5';
                         else if (parentName.includes('CUBIERTA') || parentName.includes('6.')) floor = 'CUBIERTA';
                     }
-
+                    
                     if (!layerManager.floors[floor]) {
                         layerManager.floors[floor] = [];
                     }
@@ -347,112 +342,96 @@
                         visible: true
                     });
                 });
-
+                
                 layerManager.buildUI();
             },
-
+            
             buildUI: () => {
                 const content = document.getElementById('layerContent');
                 content.innerHTML = '';
-
+                
                 const floorOrder = ['PISO 1', 'PISO 2', 'PISO 3', 'PISO 4', 'PISO 5', 'CUBIERTA'];
-
+                
                 floorOrder.forEach((floorName, index) => {
                     if (!layerManager.floors[floorName]) return;
-
+                    
                     const section = document.createElement('div');
                     section.className = 'floor-section';
-
-                    // Floor header
+                    
                     const header = document.createElement('div');
                     header.className = 'floor-header';
                     header.innerHTML = `
                         <div class="floor-toggle"></div>
                         <div class="floor-name">${floorName}</div>
                     `;
-
-                    // Items container
+                    
                     const itemsContainer = document.createElement('div');
                     itemsContainer.className = 'floor-items';
-
+                    
                     if (index === 0) {
-                        // Piso 1 expanded by default
                         itemsContainer.classList.remove('collapsed');
                         header.querySelector('.floor-toggle').classList.remove('collapsed');
                     } else {
                         itemsContainer.classList.add('collapsed');
                         header.querySelector('.floor-toggle').classList.add('collapsed');
                     }
-
-                    // Add elements for this floor
+                    
                     layerManager.floors[floorName].forEach((elem, elemIndex) => {
                         const item = document.createElement('div');
                         item.className = 'element-item';
-
+                        
                         const checkbox = document.createElement('div');
                         checkbox.className = 'element-checkbox checked';
-
+                        
                         const name = document.createElement('div');
                         name.className = 'element-name';
                         name.textContent = elem.name;
-
+                        
                         item.appendChild(checkbox);
                         item.appendChild(name);
-
+                        
                         item.addEventListener('click', () => {
                             elem.visible = !elem.visible;
                             elem.mesh.setEnabled(elem.visible);
-
+                            
                             if (elem.visible) {
                                 checkbox.classList.add('checked');
                             } else {
                                 checkbox.classList.remove('checked');
                             }
                         });
-
+                        
                         itemsContainer.appendChild(item);
                     });
-
-                    // Toggle floor section
+                    
                     header.addEventListener('click', () => {
                         itemsContainer.classList.toggle('collapsed');
                         header.querySelector('.floor-toggle').classList.toggle('collapsed');
                     });
-
+                    
                     section.appendChild(header);
                     section.appendChild(itemsContainer);
                     content.appendChild(section);
                 });
-            },
-
-            toggleElement: (floorName, elemName) => {
-                if (layerManager.floors[floorName]) {
-                    const elem = layerManager.floors[floorName].find(e => e.name === elemName);
-                    if (elem) {
-                        elem.visible = !elem.visible;
-                        elem.mesh.setEnabled(elem.visible);
-                    }
-                }
             }
         };
-
+        
         // ==================== MODEL LOADING ====================
         let modelLoaded = false;
-
+        
         BABYLON.SceneLoader.ImportMesh(
             "",
-            "https://raw.githubusercontent.com/TuArchivo/Assets/main/",
-            "UNITROPICO_TECNICO.glb",
+            "https://raw.githubusercontent.com/XR1972/UNITROPICO-TECNICO/main/",
+            "2. UNITROPICO ESTRUCTURA.glb",
             scene,
             async (meshes, particleSystems, skeletons, animationGroups) => {
-                console.log('Modelo TECNICO cargado:', meshes.length, 'meshes');
-
+                console.log('Modelo cargado:', meshes.length, 'meshes');
+                
                 const root = meshes[0];
                 root.checkCollisions = true;
-
-                // Initialize layer manager
+                
                 await layerManager.init(root);
-
+                
                 modelLoaded = true;
             },
             null,
@@ -460,21 +439,14 @@
                 console.error('Error cargando modelo:', error);
             }
         );
-
+        
         // ==================== VIGNETTE EFFECT ====================
-        const vignetteEffect = new BABYLON.VignetteEffect({
-            vignette: 0.3,
-            vignetteBlur: true,
-            vignetteStrength: 1.5
-        });
-
-        const postProcess = new BABYLON.PostProcess("vignette", "vignette",
+        const postProcess = new BABYLON.PostProcess("vignette", "vignette", 
             ["vignetteBlur", "vignette"], null, 1, camera);
         postProcess.samplingMode = BABYLON.Texture.BILINEAR_SAMPLINGMODE;
-
+        
         // ==================== FLOOR DETECTION ====================
         const getFloor = (y) => {
-            // Y ranges based on Blender model structure
             const FLOOR_RANGES = {
                 'PISO 1': { min: 0, max: 3.2 },
                 'PISO 2': { min: 3.2, max: 6.4 },
@@ -483,36 +455,34 @@
                 'PISO 5': { min: 12.8, max: 16.0 },
                 'CUBIERTA': { min: 16.0, max: 20.0 }
             };
-
+            
             for (const [floor, range] of Object.entries(FLOOR_RANGES)) {
                 if (y >= range.min && y < range.max) return floor;
             }
             return 'DESCONOCIDO';
         };
-
+        
         // ==================== RENDER LOOP ====================
         let elapsedTime = 0;
         let lastClimbTime = 0;
         let alturaUltimaActualizada = posicionInicial.y;
-
+        
         engine.runRenderLoop(() => {
             const deltaTime = engine.getDeltaTime() / 1000;
             elapsedTime += deltaTime;
-
-            // Update HUD
+            
             const floorName = getFloor(camera.position.y);
             document.getElementById('pisoDisplay').textContent = floorName;
-            document.getElementById('posDisplay').textContent =
+            document.getElementById('posDisplay').textContent = 
                 `${camera.position.x.toFixed(1)}, ${camera.position.y.toFixed(1)}, ${camera.position.z.toFixed(1)}`;
             document.getElementById('fpsDisplay').textContent = engine.getFps().toFixed(0);
-
-            // Movement
+            
             const direction = new BABYLON.Vector3(0, 0, 0);
             if (teclas.w) direction.addInPlace(BABYLON.Vector3.Forward());
             if (teclas.s) direction.addInPlace(BABYLON.Vector3.Backward());
             if (teclas.a) direction.addInPlace(BABYLON.Vector3.Left());
             if (teclas.d) direction.addInPlace(BABYLON.Vector3.Right());
-
+            
             if (direction.length() > 0) {
                 direction.normalize();
                 const movVector = BABYLON.Vector3.TransformCoordinates(
@@ -521,8 +491,7 @@
                 );
                 camera.position.addInPlace(movVector.scale(camera.speed));
             }
-
-            // Jump/Climb
+            
             if (teclas.espacio && elapsedTime - lastClimbTime > 0.3) {
                 const alturaActual = alturaDelPiso(camera.position.x, camera.position.y, camera.position.z);
                 if (alturaActual !== null) {
@@ -533,8 +502,7 @@
                     }
                 }
             }
-
-            // Height adjustment
+            
             const alturaActual = alturaDelPiso(camera.position.x, camera.position.y, camera.position.z);
             if (alturaActual !== null) {
                 const margenAltura = 0.3;
@@ -545,17 +513,16 @@
                     camera.position.y -= 0.15;
                 }
             }
-
+            
             scene.render();
         });
-
-        // ==================== WINDOW RESIZE ====================
+        
         window.addEventListener('resize', () => {
             engine.resize();
         });
-
+        
         // ==================== WEBXR SETUP ====================
-        const xrHelper = BABYLON.WebXRDefaultExperience.CreateAsync(scene, {
+        BABYLON.WebXRDefaultExperience.CreateAsync(scene, {
             uiOptions: {
                 sessionMode: 'immersive-vr',
                 referenceSpaceType: 'local-floor'
@@ -565,10 +532,8 @@
                 console.log('WebXR disponible');
             }
         }).catch((err) => {
-            console.log('WebXR no disponible:', err);
+            console.log('WebXR no disponible');
         });
     </script>
 </body>
 </html>
-
- 
